@@ -1,0 +1,55 @@
+from decimal import Decimal, getcontext
+
+# Устанавливаем высокую точность
+getcontext().prec = 40
+
+def decimal_exp(x: Decimal) -> Decimal:
+    getcontext().prec += 2
+    term = Decimal(1)
+    result = term
+    n = 1
+    while term > Decimal('1e-40'):
+        term *= x / n
+        result += term
+        n += 1
+    getcontext().prec -= 2
+    return +result
+
+def decimal_ln(x: Decimal) -> Decimal:
+    if x <= 0:
+        raise ValueError("ln(x) is undefined for x <= 0")
+    getcontext().prec += 4
+    if x == Decimal(1):
+        return Decimal(0)
+
+    # Use change of base for values far from 1
+    if x < Decimal('0.5') or x > Decimal('1.5'):
+        # ln(x) = ln(x / e) + 1
+        from math import e
+        return decimal_ln(x / Decimal(e)) + Decimal(1)
+
+    y = (x - 1) / (x + 1)
+    y2 = y * y
+    term = y
+    result = term
+    n = 1
+    while True:
+        term *= y2
+        next_term = term / (2 * n + 1)
+        if abs(next_term) < Decimal('1e-40'):
+            break
+        result += next_term
+        n += 1
+    getcontext().prec -= 4
+    return +(result * 2)
+
+def decimal_log10(x: Decimal) -> Decimal:
+    return decimal_ln(x) / decimal_ln(Decimal('10'))
+
+def compute_expression(d: Decimal) -> Decimal:
+    return decimal_exp(d) + decimal_ln(d) + decimal_log10(d) + d
+
+if __name__ == "__main__":
+    d = Decimal(input())
+    result = compute_expression(d)
+    print(result)
