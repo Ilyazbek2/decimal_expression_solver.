@@ -1,0 +1,21 @@
+import unittest
+from decimal import Decimal, getcontext
+from expression_solver import compute_expression
+
+getcontext().prec = 40
+
+class TestExpressionSolver(unittest.TestCase):
+    def test_sample_input_1(self):
+        d = Decimal('1.1')
+        expected = Decimal('4.189677737079134559844013562')
+        actual = compute_expression(d).quantize(Decimal('1.000000000000000000000000000'))
+        self.assertEqual(actual, expected)
+
+    def test_sample_input_2(self):
+        d = Decimal('4.0')
+        expected = Decimal('58.58650438559209208737220323')
+        actual = compute_expression(d).quantize(Decimal('1.00000000000000000000000000'))
+        self.assertEqual(actual, expected)
+
+if __name__ == "__main__":
+    unittest.main()
